@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:gravity="center_vertical">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="¡Hola de nuevo!"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="¿Qué vamos a entrenar hoy?"
+        android:textSize="16sp"
+        android:layout_marginBottom="40dp"/>
+
+    <Button
+        android:id="@+id/btnNuevaSesion"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="REGISTRAR NUEVA SESIÓN"
+        android:layout_marginBottom="16dp"/>
+
+    <Button
+        android:id="@+id/btnVerProgreso"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="VER MI AVATAR Y PROGRESO"
+        style="?android:attr/buttonBarButtonStyle" />
+
+</LinearLayout>
