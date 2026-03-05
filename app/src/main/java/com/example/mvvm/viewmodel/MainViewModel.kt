@@ -1,13 +1,26 @@
 package com.example.mvvm.viewmodel
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.mvvm.model.DataRepository
+import com.example.mvvm.model.SessionSummary
 
 class MainViewModel : ViewModel() {
 
     private val repository = DataRepository()
-    val mensajeEstado = MutableLiveData<String>()
+
+    // Estado para mensajes informativos
+    private val _mensajeEstado = MutableLiveData<String>()
+    val mensajeEstado: LiveData<String> get() = _mensajeEstado
+
+    // Estado para el resumen de la sesión
+    private val _resumenSesion = MutableLiveData<SessionSummary?>()
+    val resumenSesion: LiveData<SessionSummary?> get() = _resumenSesion
+
+    // Estado para el conteo de sets actuales
+    private val _setsCount = MutableLiveData<Int>(0)
+    val setsCount: LiveData<Int> get() = _setsCount
 
     fun validarYGuardar(ejercicio: String, pesoStr: String, repsStr: String) {
         val peso = pesoStr.toFloatOrNull()
@@ -16,10 +29,37 @@ class MainViewModel : ViewModel() {
         if (peso != null && reps != null && peso > 0 && reps > 0 && ejercicio.isNotEmpty()) {
             val exito = repository.guardarSetDummy(ejercicio, peso, reps)
             if (exito) {
-                mensajeEstado.value = "Progreso guardado: $ejercicio ($peso kg, $reps reps)"
+                _mensajeEstado.value = "Serie agregada: $ejercicio ($peso kg, $reps reps)"
+                _setsCount.value = repository.obtenerSetsActuales().size
             }
         } else {
-            mensajeEstado.value = "Error: Ingresa datos válidos mayores a 0"
+            _mensajeEstado.value = "Error: Ingresa datos válidos mayores a 0"
         }
+    }
+
+    fun finalizarEntrenamiento() {
+        val sets = repository.obtenerSetsActuales()
+        
+        if (sets.isEmpty()) {
+            _mensajeEstado.value = "Error: Debes agregar al menos una serie para finalizar"
+            return
+        }
+
+        val resumen = repository.finalizarSesion()
+        _resumenSesion.value = resumen
+        _setsCount.value = 0
+        
+        var mensajeFinal = "¡Sesión Finalizada!\n" +
+                "Volumen Total: ${resumen.volumenTotal} kg\n" +
+                "XP Ganada: ${resumen.xpGanada}"
+        
+        if (resumen.huboPR) mensajeFinal += "\n¡NUEVO RÉCORD PERSONAL! 🏆"
+        if (resumen.subioDeNivel) mensajeFinal += "\n¡EL AVATAR HA EVOLUCIONADO! ⭐"
+        
+        _mensajeEstado.value = mensajeFinal
+    }
+    
+    fun resetResumen() {
+        _resumenSesion.value = null
     }
 }

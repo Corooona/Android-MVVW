@@ -25,11 +25,17 @@ class MainActivity : AppCompatActivity() {
         val etPeso = findViewById<EditText>(R.id.etPeso)
         val etReps = findViewById<EditText>(R.id.etReps)
         val btnGuardar = findViewById<Button>(R.id.btnGuardar)
+        val btnFinalizar = findViewById<Button>(R.id.btnFinalizar)
         val tvMensaje = findViewById<TextView>(R.id.tvMensaje)
+        val tvSetsCount = findViewById<TextView>(R.id.tvSetsCount)
 
         // Observar los cambios de datos
         viewModel.mensajeEstado.observe(this) { mensaje ->
             tvMensaje.text = mensaje
+        }
+
+        viewModel.setsCount.observe(this) { count ->
+            tvSetsCount.text = "Series en la sesión: $count"
         }
 
         // Notificar al ViewModel ante una interacción del usuario
@@ -39,6 +45,14 @@ class MainActivity : AppCompatActivity() {
                 etPeso.text.toString(),
                 etReps.text.toString()
             )
+            // Limpiar campos después de agregar (opcional, mejora UX)
+            etPeso.text.clear()
+            etReps.text.clear()
+        }
+
+        btnFinalizar.setOnClickListener {
+            viewModel.finalizarEntrenamiento()
+            etEjercicio.text.clear()
         }
     }
 }
