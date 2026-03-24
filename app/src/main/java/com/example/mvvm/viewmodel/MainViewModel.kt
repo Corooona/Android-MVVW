@@ -5,22 +5,23 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.mvvm.model.DataRepository
 import com.example.mvvm.model.SessionSummary
+import com.example.mvvm.model.SesionHistorial
 
 class MainViewModel : ViewModel() {
 
-    private val repository = DataRepository()
+    val repository = DataRepository()
 
-    // Estado para mensajes informativos
     private val _mensajeEstado = MutableLiveData<String>()
     val mensajeEstado: LiveData<String> get() = _mensajeEstado
 
-    // Estado para el resumen de la sesión
     private val _resumenSesion = MutableLiveData<SessionSummary?>()
     val resumenSesion: LiveData<SessionSummary?> get() = _resumenSesion
 
-    // Estado para el conteo de sets actuales
     private val _setsCount = MutableLiveData<Int>(0)
     val setsCount: LiveData<Int> get() = _setsCount
+
+    private val _historial = MutableLiveData<List<SesionHistorial>>(emptyList())
+    val historial: LiveData<List<SesionHistorial>> get() = _historial
 
     fun validarYGuardar(ejercicio: String, pesoStr: String, repsStr: String) {
         val peso = pesoStr.toFloatOrNull()
@@ -39,7 +40,7 @@ class MainViewModel : ViewModel() {
 
     fun finalizarEntrenamiento() {
         val sets = repository.obtenerSetsActuales()
-        
+
         if (sets.isEmpty()) {
             _mensajeEstado.value = "Error: Debes agregar al menos una serie para finalizar"
             return
@@ -48,18 +49,17 @@ class MainViewModel : ViewModel() {
         val resumen = repository.finalizarSesion()
         _resumenSesion.value = resumen
         _setsCount.value = 0
-        
+
+        // Actualizar historial
+        _historial.value = repository.obtenerHistorial()
+
         var mensajeFinal = "¡Sesión Finalizada!\n" +
                 "Volumen Total: ${resumen.volumenTotal} kg\n" +
                 "XP Ganada: ${resumen.xpGanada}"
-        
+
         if (resumen.huboPR) mensajeFinal += "\n¡NUEVO RÉCORD PERSONAL! 🏆"
         if (resumen.subioDeNivel) mensajeFinal += "\n¡EL AVATAR HA EVOLUCIONADO! ⭐"
-        
+
         _mensajeEstado.value = mensajeFinal
-    }
-    
-    fun resetResumen() {
-        _resumenSesion.value = null
     }
 }

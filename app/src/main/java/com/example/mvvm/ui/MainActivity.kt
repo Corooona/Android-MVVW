@@ -6,6 +6,8 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import android.content.Intent
+import com.example.mvvm.FitnessApp
 import com.example.mvvm.R
 import com.example.mvvm.viewmodel.MainViewModel
 
@@ -18,9 +20,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         // Instanciar el ViewModel
-        viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+        viewModel = (application as FitnessApp).mainViewModel
 
         // Referencias a la Vista XML
+        val userId = intent.getStringExtra("USER_ID") ?: "Usuario"
         val etEjercicio = findViewById<EditText>(R.id.etEjercicio)
         val etPeso = findViewById<EditText>(R.id.etPeso)
         val etReps = findViewById<EditText>(R.id.etReps)
@@ -52,7 +55,13 @@ class MainActivity : AppCompatActivity() {
 
         btnFinalizar.setOnClickListener {
             viewModel.finalizarEntrenamiento()
-            etEjercicio.text.clear()
+
+            // Regresar al Dashboard con el userId
+            val intent = Intent(this, DashboardActivity::class.java)
+            intent.putExtra("USER_ID", userId)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+            startActivity(intent)
+            finish()
         }
     }
 }

@@ -11,12 +11,22 @@ class DashboardActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard)
 
+        // Recibir el userId que viene del Login
+        val userId = intent.getStringExtra("USER_ID") ?: "Usuario"
+
         val btnNuevaSesion = findViewById<Button>(R.id.btnNuevaSesion)
+        val btnVerProgreso = findViewById<Button>(R.id.btnVerProgreso)
 
         btnNuevaSesion.setOnClickListener {
-            // Este botón nos lleva a la pantalla MVP que programamos anteriormente
             val intent = Intent(this, MainActivity::class.java)
+            intent.putExtra("USER_ID", userId)  // ← lo reenvía a Nueva Sesión
+            startActivity(intent)
+        }
+
+        btnVerProgreso.setOnClickListener {
+            val intent = Intent(this, HistorialActivity::class.java)
+            intent.putExtra("USER_ID", userId)
             startActivity(intent)
         }
     }
-}
+    }

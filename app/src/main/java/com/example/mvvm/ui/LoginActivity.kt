@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.example.mvvm.R
+import android.widget.EditText
 
 class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -12,12 +13,15 @@ class LoginActivity : AppCompatActivity() {
         setContentView(R.layout.activity_login)
 
         val btnEntrar = findViewById<Button>(R.id.btnEntrar)
+        val etUsuario = findViewById<EditText>(R.id.etUsuario)  // ← aquí
 
         btnEntrar.setOnClickListener {
-            // El "Intent" es el puente para saltar de una pantalla a otra
+            val userId = etUsuario.text.toString().trim()
+
             val intent = Intent(this, DashboardActivity::class.java)
+            intent.putExtra("USER_ID", userId)
             startActivity(intent)
-            finish() // Cierra el login para que el usuario no pueda regresar con el botón "Atrás"
+            finish()
         }
     }
 }
