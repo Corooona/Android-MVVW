@@ -3,13 +3,43 @@ package com.example.mvvm.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.mvvm.model.DataRepository
+import com.example.mvvm.model.Exercise
 import com.example.mvvm.model.SessionSummary
 import com.example.mvvm.model.SesionHistorial
+import com.example.mvvm.network.RetrofitInstance
+import kotlinx.coroutines.launch
+
+// Sella los tres estados posibles de una llamada a la API
+sealed class ExercisesState {
+    object Loading : ExercisesState()
+    data class Success(val exercises: List<Exercise>) : ExercisesState()
+    data class Error(val message: String) : ExercisesState()
+}
 
 class MainViewModel : ViewModel() {
 
     val repository = DataRepository()
+
+    // --- Estado de la llamada a la API ---
+    private val _exercisesState = MutableLiveData<ExercisesState>()
+    val exercisesState: LiveData<ExercisesState> get() = _exercisesState
+
+    fun fetchExercises() {
+        _exercisesState.value = ExercisesState.Loading
+
+        // viewModelScope: la corrutina vive mientras el ViewModel exista.
+        // Si el usuario sale de la pantalla, se cancela sola — sin memory leaks.
+        viewModelScope.launch {
+            try {
+                val response = RetrofitInstance.api.getExercises()
+                _exercisesState.value = ExercisesState.Success(response.results)
+            } catch (e: Exception) {
+                _exercisesState.value = ExercisesState.Error(e.message ?: "Error desconocido")
+            }
+        }
+    }
 
     private val _mensajeEstado = MutableLiveData<String>()
     val mensajeEstado: LiveData<String> get() = _mensajeEstado
