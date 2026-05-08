@@ -3,34 +3,33 @@ package com.example.mvvm.model
 import com.google.gson.annotations.SerializedName
 
 data class ExerciseTranslation(
-    val name: String,
-    val description: String,
-    val language: Int
+    val name: String? = "",
+    val description: String? = "",
+    val language: Int? = 0
 )
 
 data class ExerciseCategory(
-    val id: Int,
-    val name: String
+    val id: Int? = 0,
+    val name: String? = "Sin Categoría"
 )
 
-// En /exerciseinfo/ los músculos y equipamiento son objetos, no IDs simples
 data class Muscle(
-    val id: Int,
-    val name: String
+    val id: Int? = 0,
+    val name: String? = ""
 )
 
 data class Equipment(
-    val id: Int,
-    val name: String
+    val id: Int? = 0,
+    val name: String? = ""
 )
 
 data class Exercise(
     val id: Int,
-    val category: ExerciseCategory,
-    val muscles: List<Muscle>,
-    @SerializedName("muscles_secondary") val musclesSecondary: List<Muscle>,
-    val equipment: List<Equipment>,
-    val translations: List<ExerciseTranslation>
+    val category: ExerciseCategory = ExerciseCategory(),
+    val muscles: List<Muscle> = emptyList(),
+    @SerializedName("muscles_secondary") val musclesSecondary: List<Muscle> = emptyList(),
+    val equipment: List<Equipment> = emptyList(),
+    val translations: List<ExerciseTranslation> = emptyList()
 )
 
 data class ExerciseResponse(

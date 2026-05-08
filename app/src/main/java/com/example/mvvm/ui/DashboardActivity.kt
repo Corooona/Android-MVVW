@@ -11,7 +11,6 @@ class DashboardActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard)
 
-        // Recibir el userId que viene del Login
         val userId = intent.getStringExtra("USER_ID") ?: "Usuario"
 
         val btnNuevaSesion = findViewById<Button>(R.id.btnNuevaSesion)
@@ -19,7 +18,7 @@ class DashboardActivity : AppCompatActivity() {
         val btnEjercicios  = findViewById<Button>(R.id.btnEjercicios)
 
         btnNuevaSesion.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java)
+            val intent = Intent(this, TrainingActivity::class.java)
             intent.putExtra("USER_ID", userId)
             startActivity(intent)
         }
@@ -34,4 +33,4 @@ class DashboardActivity : AppCompatActivity() {
             startActivity(Intent(this, ExercisesActivity::class.java))
         }
     }
-    }
+}

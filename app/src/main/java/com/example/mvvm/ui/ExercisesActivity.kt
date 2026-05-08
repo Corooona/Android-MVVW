@@ -102,13 +102,13 @@ private fun ExerciseCard(exercise: Exercise) {
             Spacer(modifier = Modifier.height(4.dp))
             // category ahora es un objeto con .name en lugar de un Int
             Text(
-                text = "Categoría: ${exercise.category.name}",
+                text = "Categoría: ${exercise.category.name ?: "Sin categoría"}",
                 fontSize = 14.sp,
                 color = MaterialTheme.colorScheme.secondary
             )
             Text(
                 text = if (exercise.muscles.isEmpty()) "Músculos: —"
-                       else "Músculos: ${exercise.muscles.joinToString(", ") { it.name }}",
+                       else "Músculos: ${exercise.muscles.joinToString(", ") { it.name ?: "" }}",
                 fontSize = 14.sp,
                 color = MaterialTheme.colorScheme.secondary
             )

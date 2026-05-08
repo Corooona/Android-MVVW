@@ -3,6 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
         android:name=".FitnessApp"
@@ -14,6 +17,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MVVM">
+        
         <activity
             android:name=".ui.LoginActivity"
             android:exported="true">
@@ -23,21 +27,14 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".ui.HistorialActivity"
-            android:exported="false" />
+        <activity android:name=".ui.HistorialActivity" android:exported="false" />
+        <activity android:name=".ui.DashboardActivity" android:exported="false" />
+        <activity android:name=".ui.MainActivity" android:exported="false" />
+        <activity android:name=".ui.ExercisesActivity" android:exported="false" />
+        
+        <!-- Nueva pantalla para el flujo de la imagen -->
+        <activity android:name=".ui.TrainingActivity" android:exported="false" />
 
-        <activity
-            android:name=".ui.DashboardActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".ui.MainActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".ui.ExercisesActivity"
-            android:exported="false" />
     </application>
 
 </manifest>

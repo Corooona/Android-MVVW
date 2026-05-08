@@ -1,25 +1,32 @@
 package com.example.mvvm.ui
 
 import android.Manifest
-import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
+import com.example.mvvm.FitnessApp
+import com.example.mvvm.viewmodel.MainViewModel
+import org.json.JSONArray
 
 enum class TrainingStep {
     DETONADOR, RATIONALE, ENTRENAMIENTO
@@ -28,17 +35,17 @@ enum class TrainingStep {
 class TrainingActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val viewModel = (application as FitnessApp).mainViewModel
         setContent {
-            TrainingFlowScreen()
+            TrainingFlowScreen(viewModel)
         }
     }
 }
 
 @Composable
-fun TrainingFlowScreen() {
+fun TrainingFlowScreen(viewModel: MainViewModel) {
     var currentStep by remember { mutableStateOf(TrainingStep.DETONADOR) }
     var isPermissionGranted by remember { mutableStateOf(false) }
-    val context = LocalContext.current
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
@@ -66,7 +73,7 @@ fun TrainingFlowScreen() {
                 )
                 TrainingStep.ENTRENAMIENTO -> EntrenamientoScreen(
                     granted = isPermissionGranted,
-                    onFinish = { /* Volver o finalizar */ }
+                    viewModel = viewModel
                 )
             }
         }
@@ -75,22 +82,59 @@ fun TrainingFlowScreen() {
 
 @Composable
 fun DetonadorScreen(onStart: () -> Unit) {
+    val context = LocalContext.current
+    
+    // Leer frases del JSON en assets
+    val fraseMotivacional = remember {
+        try {
+            val jsonString = context.assets.open("frases.json").bufferedReader().use { it.readText() }
+            val jsonArray = JSONArray(jsonString)
+            val randomIndex = (0 until jsonArray.length()).random()
+            jsonArray.getString(randomIndex)
+        } catch (e: Exception) {
+            "¡A darle con todo hoy!" // Frase de respaldo
+        }
+    }
+
     Column(
         modifier = Modifier.fillMaxSize().padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+        Text(
+            "¿LISTO PARA EL RETO?",
+            fontSize = 14.sp,
+            fontWeight = FontWeight.ExtraBold,
+            color = MaterialTheme.colorScheme.primary,
+            letterSpacing = 2.sp
+        )
+        
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // Tarjeta con frase motivacional (Sustituye a los círculos de carga)
+        Card(
+            modifier = Modifier.fillMaxWidth().padding(bottom = 48.dp),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f))
+        ) {
+            Column(modifier = Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = "“$fraseMotivacional”",
+                    fontSize = 18.sp,
+                    fontStyle = FontStyle.Italic,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    lineHeight = 24.sp
+                )
+            }
+        }
+
         Button(
             onClick = onStart,
-            modifier = Modifier.fillMaxWidth().height(60.dp)
+            modifier = Modifier.fillMaxWidth().height(64.dp),
+            shape = RoundedCornerShape(12.dp)
         ) {
-            Text("Iniciar Entrenamiento", fontSize = 18.sp)
-        }
-        Spacer(modifier = Modifier.height(40.dp))
-        // Simulando las gráficas del dibujo
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-            Box(Modifier.size(80.dp).padding(4.dp)) { CircularProgressIndicator(progress = 0.7f) }
-            Box(Modifier.size(80.dp).padding(4.dp)) { CircularProgressIndicator(progress = 0.4f) }
+            Text("Iniciar Entrenamiento", fontSize = 18.sp, fontWeight = FontWeight.Bold)
         }
     }
 }
@@ -133,33 +177,94 @@ fun RationaleScreen(onAccept: () -> Unit, onDecline: () -> Unit) {
 }
 
 @Composable
-fun EntrenamientoScreen(granted: Boolean, onFinish: () -> Unit) {
+fun EntrenamientoScreen(granted: Boolean, viewModel: MainViewModel) {
+    var ejercicio by remember { mutableStateOf("") }
+    var peso by remember { mutableStateOf("") }
+    var reps by remember { mutableStateOf("") }
+    
+    val mensajeEstado by viewModel.mensajeEstado.observeAsState("")
+    val setsCount by viewModel.setsCount.observeAsState(0)
+
     Column(
-        modifier = Modifier.fillMaxSize().padding(24.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp)
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text("Entrenamiento", fontSize = 24.sp, fontWeight = FontWeight.Bold)
-        Spacer(modifier = Modifier.height(20.dp))
-        Text("~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-        Text("~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         
-        Spacer(modifier = Modifier.height(40.dp))
+        Spacer(modifier = Modifier.height(16.dp))
         
         if (granted) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("❤️", fontSize = 40.sp)
-                Text(" 155", fontSize = 32.sp, fontWeight = FontWeight.Bold, color = Color.Red)
+                Text("❤️", fontSize = 32.sp)
+                Text(" 155 BPM", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color.Red)
             }
         } else {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("❤️", fontSize = 40.sp, color = Color.Gray)
-                Text(" Permite acceso", fontSize = 16.sp, color = Color.Gray)
+                Text("❤️", fontSize = 32.sp, color = Color.Gray)
+                Text(" Permite acceso para ver pulso", fontSize = 14.sp, color = Color.Gray)
             }
         }
+
+        Divider(modifier = Modifier.padding(vertical = 16.dp))
+
+        OutlinedTextField(
+            value = ejercicio,
+            onValueChange = { ejercicio = it },
+            label = { Text("Nombre del Ejercicio") },
+            modifier = Modifier.fillMaxWidth()
+        )
         
-        Spacer(modifier = Modifier.weight(1f))
-        Button(onClick = onFinish, modifier = Modifier.fillMaxWidth()) {
-            Text("Finalizar entrenamiento")
+        OutlinedTextField(
+            value = peso,
+            onValueChange = { peso = it },
+            label = { Text("Peso (kg)") },
+            modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+        )
+        
+        OutlinedTextField(
+            value = reps,
+            onValueChange = { reps = it },
+            label = { Text("Repeticiones") },
+            modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+        )
+
+        Button(
+            onClick = {
+                viewModel.validarYGuardar(ejercicio, peso, reps)
+                peso = ""
+                reps = ""
+            },
+            modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
+        ) {
+            Text("AGREGAR SERIE")
+        }
+
+        Text(
+            text = "Series en la sesión: $setsCount",
+            modifier = Modifier.padding(top = 8.dp)
+        )
+
+        if (mensajeEstado.isNotEmpty()) {
+            Text(
+                text = mensajeEstado,
+                color = if (mensajeEstado.contains("Error")) Color.Red else Color(0xFF009688),
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(top = 16.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Button(
+            onClick = { viewModel.finalizarEntrenamiento() },
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("FINALIZAR ENTRENAMIENTO", color = Color.White)
         }
     }
 }
