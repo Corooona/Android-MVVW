@@ -188,10 +188,11 @@ fun RationaleScreen(onAccept: () -> Unit, onDecline: () -> Unit) {
 
 @Composable
 fun EntrenamientoScreen(granted: Boolean, viewModel: MainViewModel, onBack: () -> Unit) {
+    val context = LocalContext.current
     var ejercicio by remember { mutableStateOf("") }
     var peso by remember { mutableStateOf("") }
     var reps by remember { mutableStateOf("") }
-    
+
     val mensajeEstado by viewModel.mensajeEstado.observeAsState("")
     val setsCount by viewModel.setsCount.observeAsState(0)
 
@@ -274,6 +275,13 @@ fun EntrenamientoScreen(granted: Boolean, viewModel: MainViewModel, onBack: () -
         }
 
         Spacer(modifier = Modifier.height(24.dp))
+
+        OutlinedButton(
+            onClick = { context.startActivity(android.content.Intent(context, ExercisesActivity::class.java)) },
+            modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+        ) {
+            Text("EXPLORAR EJERCICIOS")
+        }
 
         Button(
             onClick = {

@@ -15,7 +15,6 @@ class DashboardActivity : AppCompatActivity() {
 
         val btnNuevaSesion = findViewById<Button>(R.id.btnNuevaSesion)
         val btnVerProgreso = findViewById<Button>(R.id.btnVerProgreso)
-        val btnEjercicios  = findViewById<Button>(R.id.btnEjercicios)
 
         btnNuevaSesion.setOnClickListener {
             val intent = Intent(this, TrainingActivity::class.java)
@@ -27,10 +26,6 @@ class DashboardActivity : AppCompatActivity() {
             val intent = Intent(this, HistorialActivity::class.java)
             intent.putExtra("USER_ID", userId)
             startActivity(intent)
-        }
-
-        btnEjercicios.setOnClickListener {
-            startActivity(Intent(this, ExercisesActivity::class.java))
         }
     }
 }
