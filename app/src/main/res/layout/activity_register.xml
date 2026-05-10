@@ -9,7 +9,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="FITNESS APP"
+        android:text="CREAR CUENTA"
         android:textSize="32sp"
         android:textStyle="bold"
         android:textColor="#000000"
@@ -19,8 +19,8 @@
         android:id="@+id/etUsuario"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Correo o Usuario"
-        android:inputType="textEmailAddress"/>
+        android:hint="Usuario"
+        android:inputType="textPersonName"/>
 
     <EditText
         android:id="@+id/etPassword"
@@ -30,19 +30,26 @@
         android:inputType="textPassword"
         android:layout_marginTop="16dp"/>
 
+    <EditText
+        android:id="@+id/etConfirmarPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Confirmar contraseña"
+        android:inputType="textPassword"
+        android:layout_marginTop="16dp"/>
+
     <Button
-        android:id="@+id/btnEntrar"
+        android:id="@+id/btnCrearCuenta"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:text="INICIAR SESIÓN"
+        android:text="CREAR CUENTA"
         android:layout_marginTop="32dp"/>
 
     <Button
-        android:id="@+id/btnRegistrar"
+        android:id="@+id/btnVolver"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="¿No tienes cuenta? Regístrate"
-        android:textColor="#6200EE"
+        android:text="¿Ya tienes cuenta? Inicia sesión"
         android:layout_marginTop="12dp"
         style="@style/Widget.AppCompat.Button.Borderless"/>
 
