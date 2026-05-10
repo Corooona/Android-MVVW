@@ -53,6 +53,12 @@ fun HistorialRPGScreen(viewModel: MainViewModel, onBack: () -> Unit) {
     var isMale by remember { mutableStateOf(true) }
 
     Column(modifier = Modifier.fillMaxSize().background(Color(0xFFF8F9FA))) {
+        Box(modifier = Modifier.fillMaxWidth()) {
+            TextButton(onClick = onBack, modifier = Modifier.padding(4.dp)) {
+                Text("< Volver")
+            }
+        }
+
         // --- SECCIÓN DEL AVATAR (ESTILO CLARO Y EVOLUCIÓN FÍSICA) ---
         AvatarEvolutionSection(nivel, xpTotal, isMale) {
             isMale = !isMale
@@ -75,14 +81,6 @@ fun HistorialRPGScreen(viewModel: MainViewModel, onBack: () -> Unit) {
             }
         }
         
-        Button(
-            onClick = onBack,
-            modifier = Modifier.fillMaxWidth().padding(20.dp).height(56.dp),
-            shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00B894))
-        ) {
-            Text("VOLVER AL DASHBOARD", fontWeight = FontWeight.Bold)
-        }
     }
 }
 

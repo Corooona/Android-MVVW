@@ -37,13 +37,13 @@ class TrainingActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val viewModel = (application as FitnessApp).mainViewModel
         setContent {
-            TrainingFlowScreen(viewModel)
+            TrainingFlowScreen(viewModel, onBack = { finish() })
         }
     }
 }
 
 @Composable
-fun TrainingFlowScreen(viewModel: MainViewModel) {
+fun TrainingFlowScreen(viewModel: MainViewModel, onBack: () -> Unit) {
     var currentStep by remember { mutableStateOf(TrainingStep.DETONADOR) }
     var isPermissionGranted by remember { mutableStateOf(false) }
 
@@ -63,7 +63,7 @@ fun TrainingFlowScreen(viewModel: MainViewModel) {
     MaterialTheme {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
             when (currentStep) {
-                TrainingStep.DETONADOR -> DetonadorScreen(onStart = { currentStep = TrainingStep.RATIONALE })
+                TrainingStep.DETONADOR -> DetonadorScreen(onStart = { currentStep = TrainingStep.RATIONALE }, onBack = onBack)
                 TrainingStep.RATIONALE -> RationaleScreen(
                     onAccept = { permissionLauncher.launch(permissionsToRequest) },
                     onDecline = {
@@ -73,7 +73,8 @@ fun TrainingFlowScreen(viewModel: MainViewModel) {
                 )
                 TrainingStep.ENTRENAMIENTO -> EntrenamientoScreen(
                     granted = isPermissionGranted,
-                    viewModel = viewModel
+                    viewModel = viewModel,
+                    onBack = onBack
                 )
             }
         }
@@ -81,9 +82,9 @@ fun TrainingFlowScreen(viewModel: MainViewModel) {
 }
 
 @Composable
-fun DetonadorScreen(onStart: () -> Unit) {
+fun DetonadorScreen(onStart: () -> Unit, onBack: () -> Unit) {
     val context = LocalContext.current
-    
+
     // Leer frases del JSON en assets
     val fraseMotivacional = remember {
         try {
@@ -96,7 +97,15 @@ fun DetonadorScreen(onStart: () -> Unit) {
         }
     }
 
-    Column(
+    Box(modifier = Modifier.fillMaxSize()) {
+        TextButton(
+            onClick = onBack,
+            modifier = Modifier.align(Alignment.TopStart).padding(8.dp)
+        ) {
+            Text("< Volver")
+        }
+
+        Column(
         modifier = Modifier.fillMaxSize().padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
@@ -136,6 +145,7 @@ fun DetonadorScreen(onStart: () -> Unit) {
         ) {
             Text("Iniciar Entrenamiento", fontSize = 18.sp, fontWeight = FontWeight.Bold)
         }
+    }
     }
 }
 
@@ -177,7 +187,7 @@ fun RationaleScreen(onAccept: () -> Unit, onDecline: () -> Unit) {
 }
 
 @Composable
-fun EntrenamientoScreen(granted: Boolean, viewModel: MainViewModel) {
+fun EntrenamientoScreen(granted: Boolean, viewModel: MainViewModel, onBack: () -> Unit) {
     var ejercicio by remember { mutableStateOf("") }
     var peso by remember { mutableStateOf("") }
     var reps by remember { mutableStateOf("") }
@@ -192,6 +202,12 @@ fun EntrenamientoScreen(granted: Boolean, viewModel: MainViewModel) {
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Box(modifier = Modifier.fillMaxWidth()) {
+            TextButton(onClick = onBack) {
+                Text("< Volver")
+            }
+        }
+
         Text("Entrenamiento", fontSize = 24.sp, fontWeight = FontWeight.Bold)
         
         Spacer(modifier = Modifier.height(16.dp))
@@ -260,11 +276,15 @@ fun EntrenamientoScreen(granted: Boolean, viewModel: MainViewModel) {
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
-            onClick = { viewModel.finalizarEntrenamiento() },
-            colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
-            modifier = Modifier.fillMaxWidth()
+            onClick = {
+                viewModel.finalizarEntrenamiento()
+                onBack()
+            },
+            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp).height(56.dp),
+            shape = RoundedCornerShape(12.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE17055))
         ) {
-            Text("FINALIZAR ENTRENAMIENTO", color = Color.White)
+            Text("FINALIZAR ENTRENAMIENTO", fontWeight = FontWeight.Bold, color = Color.White)
         }
     }
 }

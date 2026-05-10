@@ -32,13 +32,12 @@ class ExercisesActivity : ComponentActivity() {
         viewModel.fetchExercises()
 
         setContent {
-            // observeAsState() convierte el LiveData en un State que Compose sabe observar.
-            // Cada vez que exercisesState cambie, Compose re-dibuja solo lo necesario.
             val state by viewModel.exercisesState.observeAsState(ExercisesState.Loading)
 
             ExercisesScreen(
                 state = state,
-                onRetry = { viewModel.fetchExercises() }
+                onRetry = { viewModel.fetchExercises() },
+                onBack = { finish() }
             )
         }
     }
@@ -47,14 +46,21 @@ class ExercisesActivity : ComponentActivity() {
 @Composable
 fun ExercisesScreen(
     state: ExercisesState,
-    onRetry: () -> Unit
+    onRetry: () -> Unit,
+    onBack: () -> Unit
 ) {
-    // MaterialTheme aplica colores y tipografía de Material 3 al árbol de Composables
     MaterialTheme {
-        when (state) {
-            is ExercisesState.Loading -> LoadingView()
-            is ExercisesState.Success -> ExerciseList(exercises = state.exercises)
-            is ExercisesState.Error   -> ErrorView(message = state.message, onRetry = onRetry)
+        Column(modifier = Modifier.fillMaxSize()) {
+            Box(modifier = Modifier.fillMaxWidth()) {
+                TextButton(onClick = onBack, modifier = Modifier.padding(4.dp)) {
+                    Text("< Volver")
+                }
+            }
+            when (state) {
+                is ExercisesState.Loading -> LoadingView()
+                is ExercisesState.Success -> ExerciseList(exercises = state.exercises)
+                is ExercisesState.Error   -> ErrorView(message = state.message, onRetry = onRetry)
+            }
         }
     }
 }
