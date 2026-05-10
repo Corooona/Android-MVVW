@@ -1,6 +1,9 @@
 package com.example.mvvm.model
 
+import android.content.Context
 import android.util.Log
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 data class SetLog(val ejercicio: String, val peso: Float, val reps: Int)
 
@@ -18,13 +21,26 @@ data class SesionHistorial(
     val xpGanada: Int
 )
 
-class DataRepository {
+class DataRepository(context: Context) {
+    private val prefs = context.getSharedPreferences("historial", Context.MODE_PRIVATE)
+    private val gson = Gson()
+
     private val currentSessionSets = mutableListOf<SetLog>()
-    private val historial = mutableListOf<SesionHistorial>()
-    
-    // Sistema de RPG
-    private var totalXP = 0
-    private var nivel = 1
+    private val historial: MutableList<SesionHistorial> = cargarHistorial()
+
+    // Sistema de RPG derivado del historial persistido
+    private var totalXP = historial.sumOf { it.xpGanada }
+    private var nivel = (totalXP / 100) + 1
+
+    private fun cargarHistorial(): MutableList<SesionHistorial> {
+        val json = prefs.getString("sesiones", null) ?: return mutableListOf()
+        val type = object : TypeToken<MutableList<SesionHistorial>>() {}.type
+        return gson.fromJson(json, type)
+    }
+
+    private fun guardarHistorial() {
+        prefs.edit().putString("sesiones", gson.toJson(historial)).apply()
+    }
 
     fun guardarSetDummy(ejercicio: String, peso: Float, reps: Int): Boolean {
         currentSessionSets.add(SetLog(ejercicio, peso, reps))
@@ -36,7 +52,7 @@ class DataRepository {
     fun finalizarSesion(): SessionSummary {
         val volumen = currentSessionSets.sumOf { (it.peso * it.reps).toDouble() }.toFloat()
         val xp = (volumen / 10).toInt()
-        
+
         totalXP += xp
         val nuevoNivel = (totalXP / 100) + 1
         val subioDeNivel = nuevoNivel > nivel
@@ -58,6 +74,7 @@ class DataRepository {
         )
 
         currentSessionSets.clear()
+        guardarHistorial()
         Log.d("RPG_DEBUG", "XP Total: $totalXP | Nivel: $nivel")
 
         return SessionSummary(volumen, xp, huboPR, subioDeNivel)

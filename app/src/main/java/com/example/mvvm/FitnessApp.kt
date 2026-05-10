@@ -16,7 +16,10 @@ class FitnessApp : Application(), ViewModelStoreOwner {
         get() = appViewModelStore
 
     val mainViewModel: MainViewModel by lazy {
-        ViewModelProvider(this)[MainViewModel::class.java]
+        ViewModelProvider(
+            this,
+            ViewModelProvider.AndroidViewModelFactory(this)
+        )[MainViewModel::class.java]
     }
 
     override fun onCreate() {

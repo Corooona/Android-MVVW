@@ -72,13 +72,19 @@ fun HistorialRPGScreen(viewModel: MainViewModel, onBack: () -> Unit) {
             fontSize = 18.sp
         )
 
+        var sesionSeleccionada by remember { mutableStateOf<SesionHistorial?>(null) }
+
         LazyColumn(
             modifier = Modifier.weight(1f).padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(sesiones.reversed()) { sesion ->
-                SessionCard(sesion)
+                SessionCard(sesion, onClick = { sesionSeleccionada = sesion })
             }
+        }
+
+        sesionSeleccionada?.let { sesion ->
+            SessionDetailDialog(sesion = sesion, onDismiss = { sesionSeleccionada = null })
         }
         
     }
@@ -230,9 +236,43 @@ fun EvolutionBodyCanvas(nivel: Int, isMale: Boolean, modifier: Modifier = Modifi
 }
 
 @Composable
-fun SessionCard(sesion: SesionHistorial) {
+fun SessionDetailDialog(sesion: SesionHistorial, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(onClick = onDismiss) { Text("Cerrar") }
+        },
+        title = {
+            Text(sesion.fecha, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+        },
+        text = {
+            Column {
+                Text(
+                    "${sesion.volumenTotal.toInt()} kg totales · +${sesion.xpGanada} XP",
+                    color = Color(0xFF00B894),
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 12.dp)
+                )
+                sesion.ejercicios.forEach { set ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(set.ejercicio, modifier = Modifier.weight(1f))
+                        Text("${set.peso}kg × ${set.reps}", color = Color.Gray)
+                    }
+                    Divider()
+                }
+            }
+        }
+    )
+}
+
+@Composable
+fun SessionCard(sesion: SesionHistorial, onClick: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
+        onClick = onClick,
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)

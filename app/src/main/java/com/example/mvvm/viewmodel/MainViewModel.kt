@@ -1,8 +1,9 @@
 package com.example.mvvm.viewmodel
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mvvm.model.DataRepository
 import com.example.mvvm.model.Exercise
@@ -18,9 +19,9 @@ sealed class ExercisesState {
     data class Error(val message: String) : ExercisesState()
 }
 
-class MainViewModel : ViewModel() {
+class MainViewModel(application: Application) : AndroidViewModel(application) {
 
-    val repository = DataRepository()
+    val repository = DataRepository(application)
 
     // --- Estado de la llamada a la API ---
     private val _exercisesState = MutableLiveData<ExercisesState>()
@@ -50,7 +51,7 @@ class MainViewModel : ViewModel() {
     private val _setsCount = MutableLiveData<Int>(0)
     val setsCount: LiveData<Int> get() = _setsCount
 
-    private val _historial = MutableLiveData<List<SesionHistorial>>(emptyList())
+    private val _historial = MutableLiveData<List<SesionHistorial>>(repository.obtenerHistorial())
     val historial: LiveData<List<SesionHistorial>> get() = _historial
 
     fun validarYGuardar(ejercicio: String, pesoStr: String, repsStr: String) {
