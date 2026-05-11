@@ -51,8 +51,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _setsCount = MutableLiveData<Int>(0)
     val setsCount: LiveData<Int> get() = _setsCount
 
-    private val _historial = MutableLiveData<List<SesionHistorial>>(repository.obtenerHistorial())
+    private val _historial = MutableLiveData<List<SesionHistorial>>(emptyList())
     val historial: LiveData<List<SesionHistorial>> get() = _historial
+
+    fun setCurrentUser(userId: String) {
+        repository.setUser(userId)
+        _historial.value = repository.obtenerHistorial()
+    }
 
     fun validarYGuardar(ejercicio: String, pesoStr: String, repsStr: String) {
         val peso = pesoStr.toFloatOrNull()

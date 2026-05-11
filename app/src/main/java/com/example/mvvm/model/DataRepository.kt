@@ -25,21 +25,31 @@ class DataRepository(context: Context) {
     private val prefs = context.getSharedPreferences("historial", Context.MODE_PRIVATE)
     private val gson = Gson()
 
+    private var currentUserId: String = ""
     private val currentSessionSets = mutableListOf<SetLog>()
-    private val historial: MutableList<SesionHistorial> = cargarHistorial()
+    private var historial: MutableList<SesionHistorial> = mutableListOf()
 
     // Sistema de RPG derivado del historial persistido
-    private var totalXP = historial.sumOf { it.xpGanada }
-    private var nivel = (totalXP / 100) + 1
+    private var totalXP = 0
+    private var nivel = 1
+
+    fun setUser(userId: String) {
+        currentUserId = userId
+        historial = cargarHistorial()
+        totalXP = historial.sumOf { it.xpGanada }
+        nivel = (totalXP / 100) + 1
+    }
+
+    private fun claveHistorial() = "sesiones_$currentUserId"
 
     private fun cargarHistorial(): MutableList<SesionHistorial> {
-        val json = prefs.getString("sesiones", null) ?: return mutableListOf()
+        val json = prefs.getString(claveHistorial(), null) ?: return mutableListOf()
         val type = object : TypeToken<MutableList<SesionHistorial>>() {}.type
         return gson.fromJson(json, type)
     }
 
     private fun guardarHistorial() {
-        prefs.edit().putString("sesiones", gson.toJson(historial)).apply()
+        prefs.edit().putString(claveHistorial(), gson.toJson(historial)).apply()
     }
 
     fun guardarSetDummy(ejercicio: String, peso: Float, reps: Int): Boolean {

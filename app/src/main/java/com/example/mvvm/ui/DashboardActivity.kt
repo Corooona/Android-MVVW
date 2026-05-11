@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
+import com.example.mvvm.FitnessApp
 import com.example.mvvm.R
 
 class DashboardActivity : AppCompatActivity() {
@@ -12,6 +13,8 @@ class DashboardActivity : AppCompatActivity() {
         setContentView(R.layout.activity_dashboard)
 
         val userId = intent.getStringExtra("USER_ID") ?: "Usuario"
+        val viewModel = (application as FitnessApp).mainViewModel
+        viewModel.setCurrentUser(userId)
 
         val btnNuevaSesion = findViewById<Button>(R.id.btnNuevaSesion)
         val btnVerProgreso = findViewById<Button>(R.id.btnVerProgreso)
