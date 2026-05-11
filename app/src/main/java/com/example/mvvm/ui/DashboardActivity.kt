@@ -16,6 +16,8 @@ class DashboardActivity : AppCompatActivity() {
         val viewModel = (application as FitnessApp).mainViewModel
         viewModel.setCurrentUser(userId)
 
+        findViewById<android.widget.TextView>(R.id.tvBienvenida).text = "¡Hola de nuevo, $userId!"
+
         val btnNuevaSesion = findViewById<Button>(R.id.btnNuevaSesion)
         val btnVerProgreso = findViewById<Button>(R.id.btnVerProgreso)
 
@@ -28,6 +30,12 @@ class DashboardActivity : AppCompatActivity() {
         btnVerProgreso.setOnClickListener {
             val intent = Intent(this, HistorialActivity::class.java)
             intent.putExtra("USER_ID", userId)
+            startActivity(intent)
+        }
+
+        findViewById<Button>(R.id.btnCerrarSesion).setOnClickListener {
+            val intent = Intent(this, LoginActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
         }
     }
